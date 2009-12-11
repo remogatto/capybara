@@ -145,12 +145,12 @@ module Capybara
       fetch_xpath(XPath.button(locator))
     end
 
-  private
-  
     def fetch_xpath(xpath)
       driver.fetch(*xpath.paths.map { |path| current_scope.to_s + path })
     end
 
+  private
+  
     def css_to_xpath(css)
       Nokogiri::CSS.xpath_for(css).first
     end

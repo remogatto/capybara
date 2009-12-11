@@ -815,6 +815,34 @@ shared_examples_for "session with javascript support" do
     end
   end
   
+  describe '#fetch_xpath' do
+    before do
+      @session.visit('/with_js')
+    end
+
+    it "should wait for asynchronous load" do
+      @session.click_link('Click me')
+      @session.fetch_xpath(Capybara::XPath.new("//a[contains(.,'Has been clicked')]")).should be_kind_of(Capybara::Node)
+    end
+
+    it "should work with chained xpaths fetching the first match" do
+      @session.click_link('Click me')
+      @session.fetch_xpath(Capybara::XPath.link('Click me').button('New here')).text.should == 'Click me'
+    end
+
+    context 'within a scope' do
+      before do
+        @session.visit('/with_scope')
+      end
+
+      it "should find the first element using the given xpath" do
+        @session.within(:xpath, "//div[@id='for_bar']") do
+          @session.fetch_xpath(Capybara::XPath.link('Go')).text.should =~ /Go/
+        end        
+      end
+    end
+  end
+
 end
 
 describe Capybara::Session do
