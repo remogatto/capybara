@@ -830,6 +830,11 @@ shared_examples_for "session with javascript support" do
       @session.fetch_xpath(Capybara::XPath.link('Click me').button('New here')).text.should == 'Click me'
     end
 
+    it "should wait for an element to disappear" do
+      @session.click_link('Seppuku!')
+      @session.wait_for(Capybara::XPath.link('Seppuku!')).to_disappear
+    end
+
     context 'within a scope' do
       before do
         @session.visit('/with_scope')

@@ -24,6 +24,13 @@
           }, 500);
           return false;
         });
+        $('#seppuku').click(function() {
+          var link = $(this);
+          setTimeout(function() {
+            $(link).remove();
+          }, 500);
+          return false;
+        });
       });
     //]]>
     </script>
@@ -40,6 +47,9 @@
       <p>It should be dropped here.</p>
     </div>
     
-    <p><a href="#" id="clickable">Click me</a></p>
+    <p>
+      <a href="#" id="clickable">Click me</a>
+      <a href="#" id="seppuku">Seppuku!</a>
+    </p>
   </body>
 </html>

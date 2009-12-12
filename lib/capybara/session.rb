@@ -149,6 +149,15 @@ module Capybara
       driver.fetch(*xpath.paths.map { |path| current_scope.to_s + path })
     end
 
+    def wait_to_disappear(xpath)
+      time = Time.now
+      while(Time.now - time) < 5
+        break true if fetch(xpath).nil?
+      end
+    end
+
+    alias_method :wait_for, :fetch_xpath
+
   private
   
     def css_to_xpath(css)
