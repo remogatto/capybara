@@ -152,7 +152,7 @@ module Capybara
     def wait_to_disappear(xpath)
       time = Time.now
       while(Time.now - time) < 5
-        break true if fetch(xpath).nil?
+        break true if fetch_xpath(xpath).nil?
       end
     end
 
