@@ -105,6 +105,13 @@ module Capybara
       has_xpath?(css_to_xpath(path), options)
     end
 
+    def is_disappeared?(locator)
+      time = Time.now
+      while(Time.now - time) < 5
+        break true if wait_for(locator).nil?
+      end
+    end
+
     def within(kind, scope=nil)
       kind, scope = Capybara.default_selector, kind unless scope
       scope = css_to_xpath(scope) if kind == :css
@@ -162,13 +169,6 @@ module Capybara
 
     def find_button(locator)
       find(XPath.button(locator))
-    end
-
-    def wait_to_disappear(xpath)
-      time = Time.now
-      while(Time.now - time) < 5
-        break true if fetch_xpath(xpath).nil?
-      end
     end
 
     def evaluate_script(script)
