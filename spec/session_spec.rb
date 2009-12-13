@@ -185,7 +185,7 @@ shared_examples_for "session" do
         end.should raise_error(Capybara::ElementNotFound)
       end
     end
-    
+
     it "should serialize and send GET forms" do
       @session.visit('/form')
       @session.click_button('med')
@@ -272,7 +272,7 @@ shared_examples_for "session" do
       @session.click_button('awesome')
       extract_results(@session)['gender'].should == 'both'
     end
-    
+
     context "with a locator that doesn't exist" do
       it "should raise an error" do
         running { @session.choose('does not exist') }.should raise_error(Capybara::ElementNotFound)
@@ -296,7 +296,7 @@ shared_examples_for "session" do
       @session.click_button('awesome')
       extract_results(@session)['pets'].should include('dog', 'cat', 'hamster')
     end
-    
+
     context "with a locator that doesn't exist" do
       it "should raise an error" do
         running { @session.check('does not exist') }.should raise_error(Capybara::ElementNotFound)
@@ -322,7 +322,7 @@ shared_examples_for "session" do
       extract_results(@session)['pets'].should include('dog')
       extract_results(@session)['pets'].should_not include('hamster')
     end
-    
+
     context "with a locator that doesn't exist" do
       it "should raise an error" do
         running { @session.uncheck('does not exist') }.should raise_error(Capybara::ElementNotFound)
@@ -346,7 +346,7 @@ shared_examples_for "session" do
       @session.click_button('awesome')
       extract_results(@session)['locale'].should == 'fi'
     end
-    
+
     context "with a locator that doesn't exist" do
       it "should raise an error" do
         running { @session.select('foo', :from => 'does not exist') }.should raise_error(Capybara::ElementNotFound)
@@ -360,6 +360,13 @@ shared_examples_for "session" do
       @session.should have_content('est')
       @session.should have_content('Lorem')
       @session.should have_content('Redirect')
+    end
+
+    it "should be true if scoped to an element which has the content" do
+      @session.visit('/with_html')
+      @session.within("//a[@title='awesome title']") do
+        @session.should have_content('labore')
+      end
     end
 
     it "should be false if the given content is not on the page" do
@@ -400,7 +407,7 @@ shared_examples_for "session" do
       @session.should_not have_xpath("//p//a[@id='doesnotexist']")
       @session.should_not have_xpath("//p[contains(.,'thisstringisnotonpage')]")
     end
-    
+
     it "should respect scopes" do
       @session.within "//p[@id='first']" do
         @session.should have_xpath("//a[@id='foo']")
@@ -426,20 +433,20 @@ shared_examples_for "session" do
         @session.should_not have_xpath("//p//a[@id='doesnotexist']", :count => 1)
       end
     end
-    
+
     context "with text" do
       it "should discard all matches where the given string is not contained" do
         @session.should have_xpath("//p//a", :text => "Redirect", :count => 1)
         @session.should_not have_xpath("//p", :text => "Doesnotexist")
       end
-      
+
       it "should discard all matches where the given regexp is not matched" do
         @session.should have_xpath("//p//a", :text => /re[dab]i/i, :count => 1)
         @session.should_not have_xpath("//p//a", :text => /Red$/)
       end
     end
   end
-  
+
   describe '#has_css?' do
     before do
       @session.visit('/with_html')
@@ -455,7 +462,7 @@ shared_examples_for "session" do
       @session.should_not have_css("p a#doesnotexist")
       @session.should_not have_css("p.nosuchclass")
     end
-    
+
     it "should respect scopes" do
       @session.within "//p[@id='first']" do
         @session.should have_css("a#foo")
@@ -479,13 +486,13 @@ shared_examples_for "session" do
         @session.should_not have_css("p a.doesnotexist", :count => 1)
       end
     end
-    
+
     context "with text" do
       it "should discard all matches where the given string is not contained" do
         @session.should have_css("p a", :text => "Redirect", :count => 1)
         @session.should_not have_css("p a", :text => "Doesnotexist")
       end
-      
+
       it "should discard all matches where the given regexp is not matched" do
         @session.should have_css("p a", :text => /re[dab]i/i, :count => 1)
         @session.should_not have_css("p a", :text => /Red$/)
@@ -533,14 +540,14 @@ shared_examples_for "session" do
         @session.click_button('Upload')
       end
     end
-    
+
     context "with a locator that doesn't exist" do
       it "should raise an error" do
         running { @session.attach_file('does not exist', 'foo.txt') }.should raise_error(Capybara::ElementNotFound)
       end
     end
   end
-  
+
   describe '#find_field' do
     before do
       @session.visit('/form')
@@ -551,17 +558,17 @@ shared_examples_for "session" do
       @session.find_field('form_description').text.should == 'Descriptive text goes here'
       @session.find_field('Region')[:name].should == 'form[region]'
     end
-    
+
     it "should be nil if the field doesn't exist" do
       @session.find_field('Does not exist').should be_nil
     end
-    
+
     it "should be aliased as 'field_labeled' for webrat compatibility" do
       @session.field_labeled('Dog').value.should == 'dog'
       @session.field_labeled('Does not exist').should be_nil
     end
   end
-  
+
   describe '#find_link' do
     before do
       @session.visit('/with_html')
@@ -571,12 +578,12 @@ shared_examples_for "session" do
       @session.find_link('foo').text.should == "ullamco"
       @session.find_link('labore')[:href].should == "/with_simple_html"
     end
-    
+
     it "should return nil if the field doesn't exist" do
       @session.find_link('Does not exist').should be_nil
     end
   end
-  
+
   describe '#find_button' do
     before do
       @session.visit('/form')
@@ -586,7 +593,7 @@ shared_examples_for "session" do
       @session.find_button('med')[:id].should == "mediocre"
       @session.find_button('crap321').value.should == "crappy"
     end
-    
+
     it "should return nil if the field doesn't exist" do
       @session.find_button('Does not exist').should be_nil
     end
@@ -602,11 +609,18 @@ shared_examples_for "session" do
       @session.all('//h1').first.text.should == 'This is a test'
       @session.all("//input[@id='test_field']").first[:value].should == 'monkey'
     end
-    
+
     it "should return an empty array when nothing was found" do
       @session.all('//div').should be_empty
     end
-    
+
+    it "should accept an XPath instance" do
+      @session.visit('/form')
+      @xpath = Capybara::XPath.text_field('Name')
+      @result = @session.all(@xpath)
+      @result.map(&:value).should include('Smith', 'John', 'John Smith')
+    end
+
     context "within a scope" do
       before do
         @session.visit('/with_scope')
@@ -615,7 +629,7 @@ shared_examples_for "session" do
       it "should find any element using the given locator" do
         @session.within(:xpath, "//div[@id='for_bar']") do
           @session.all('//li').should have(2).elements
-        end        
+        end
       end
     end
   end
@@ -629,9 +643,48 @@ shared_examples_for "session" do
       @session.find('//h1').text.should == 'This is a test'
       @session.find("//input[@id='test_field']")[:value].should == 'monkey'
     end
-    
+
     it "should return nil when nothing was found" do
       @session.find('//div').should be_nil
+    end
+
+    it "should accept an XPath instance and respect the order of paths" do
+      @session.visit('/form')
+      @xpath = Capybara::XPath.text_field('Name')
+      @session.find(@xpath).value.should == 'John Smith'
+    end
+
+    context "within a scope" do
+      before do
+        @session.visit('/with_scope')
+      end
+
+      it "should find the first element using the given locator" do
+        @session.within(:xpath, "//div[@id='for_bar']") do
+          @session.find('//li').text.should =~ /With Simple HTML/
+        end
+      end
+    end
+  end
+  
+  describe '#wait_for' do
+    before do
+      @session.visit('/with_html')
+    end
+
+    it "should find the first element using the given locator" do
+      @session.wait_for('//h1').text.should == 'This is a test'
+      @session.wait_for("//input[@id='test_field']")[:value].should == 'monkey'
+    end
+    
+    it "should return nil when nothing was found" do
+      @session.wait_for('//div').should be_nil
+    end
+    
+    it "should accept an XPath instance and respect the order of paths" do
+      @session.visit('/form')
+      @xpath = Capybara::XPath.text_field('Name')
+      @session.wait_for(@xpath).value.should == 'John Smith'
     end
     
     context "within a scope" do
@@ -641,7 +694,7 @@ shared_examples_for "session" do
 
       it "should find the first element using the given locator" do
         @session.within(:xpath, "//div[@id='for_bar']") do
-          @session.find('//li').text.should =~ /With Simple HTML/
+          @session.wait_for('//li').text.should =~ /With Simple HTML/
         end        
       end
     end
@@ -651,7 +704,7 @@ shared_examples_for "session" do
     before do
       @session.visit('/with_scope')
     end
-    
+
     context "with CSS selector" do
       it "should click links in the given scope" do
         @session.within(:css, "ul li[contains('With Simple HTML')]") do
@@ -660,7 +713,7 @@ shared_examples_for "session" do
         @session.body.should include('<h1>Bar</h1>')
       end
     end
-    
+
     context "with XPath selector" do
       it "should click links in the given scope" do
         @session.within(:xpath, "//li[contains(.,'With Simple HTML')]") do
@@ -669,7 +722,7 @@ shared_examples_for "session" do
         @session.body.should include('<h1>Bar</h1>')
       end
     end
-    
+
     context "with the default selector" do
       it "should use XPath" do
         @session.within("//li[contains(., 'With Simple HTML')]") do
@@ -678,12 +731,12 @@ shared_examples_for "session" do
         @session.body.should include('<h1>Bar</h1>')
       end
     end
-    
+
     context "with the default selector set to CSS" do
       after do
         Capybara.default_selector = :xpath
       end
-      
+
       it "should use CSS" do
         Capybara.default_selector = :css
         @session.within("ul li[contains('With Simple HTML')]") do
@@ -692,7 +745,7 @@ shared_examples_for "session" do
         @session.body.should include('<h1>Bar</h1>')
       end
     end
-    
+
     context "with click_link" do
       it "should click links in the given scope" do
         @session.within("//li[contains(.,'With Simple HTML')]") do
@@ -720,7 +773,7 @@ shared_examples_for "session" do
           @session.body.should include('Hello world')
         end
       end
-      
+
       it "should raise an error if the scope is not found on the page" do
         running {
           @session.within("//div[@id='doesnotexist']") do
@@ -744,12 +797,12 @@ shared_examples_for "session" do
       end
     end
   end
-  
+
   describe '#within_fieldset' do
     before do
       @session.visit('/fieldsets')
     end
-    
+
     it "should restrict scope to a fieldset given by id" do
       @session.within_fieldset("villain_fieldset") do
         @session.fill_in("Name", :with => 'Goldfinger')
@@ -757,7 +810,7 @@ shared_examples_for "session" do
       end
       extract_results(@session)['villain_name'].should == 'Goldfinger'
     end
-    
+
     it "should restrict scope to a fieldset given by legend" do
       @session.within_fieldset("Villain") do
         @session.fill_in("Name", :with => 'Goldfinger')
@@ -766,12 +819,12 @@ shared_examples_for "session" do
       extract_results(@session)['villain_name'].should == 'Goldfinger'
     end
   end
-  
+
   describe '#within_table' do
     before do
       @session.visit('/tables')
     end
-    
+
     it "should restrict scope to a fieldset given by id" do
       @session.within_table("girl_table") do
         @session.fill_in("Name", :with => 'Christmas')
@@ -779,7 +832,7 @@ shared_examples_for "session" do
       end
       extract_results(@session)['girl_name'].should == 'Christmas'
     end
-    
+
     it "should restrict scope to a fieldset given by legend" do
       @session.within_table("Villain") do
         @session.fill_in("Name", :with => 'Quantum')
@@ -788,9 +841,36 @@ shared_examples_for "session" do
       extract_results(@session)['villain_name'].should == 'Quantum'
     end
   end
+
+end
+
+shared_examples_for "session without javascript support" do
+  describe "#evaluate_script" do
+    before{ @session.visit('/with_js') }
+    it "should raise an error" do
+      running {
+        @session.evaluate_script("1+5")
+      }.should raise_error(Capybara::NotSupportedByDriverError)
+    end
+  end
 end
 
 shared_examples_for "session with javascript support" do
+  describe "#evaluate_script" do
+    before{ @session.visit('/with_js') }
+    it "should return the evaluated script" do
+      @session.evaluate_script("1+3").should == 4
+    end
+  end
+
+  describe '#wait_for' do
+    it "should wait for asynchronous load" do
+      @session.visit('/with_js')
+      @session.click_link('Click me')
+      @session.wait_for("//a[contains(.,'Has been clicked')]")[:href].should == '#'
+    end
+  end
+
   describe '#click_link' do
     it "should wait for asynchronous load" do
       @session.visit('/with_js')
@@ -859,3 +939,4 @@ describe Capybara::Session do
     end
   end
 end
+

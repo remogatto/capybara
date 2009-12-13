@@ -26,49 +26,57 @@ module Capybara
     end
 
     def click_link(locator)
-      link = find_link(locator)
+      link = wait_for(XPath.link(locator))
       raise Capybara::ElementNotFound, "no link with title, id or text '#{locator}' found" unless link
       link.click
     end
 
     def click_button(locator)
-      button = find_button(locator)
+      button = wait_for(XPath.button(locator))
       raise Capybara::ElementNotFound, "no button with value or id or text '#{locator}' found" unless button
       button.click
     end
 
+    def drag(source_locator, target_locator)
+      source = find(source_locator)
+      raise Capybara::ElementNotFound, "drag source '#{source_locator}' not found on page" unless source
+      target = find(target_locator)
+      raise Capybara::ElementNotFound, "drag target '#{target_locator}' not found on page" unless target
+      source.drag_to(target)
+    end
+
     def fill_in(locator, options={})
-      field = fetch_xpath(XPath.fillable_field(locator))
+      field = wait_for(XPath.fillable_field(locator))
       raise Capybara::ElementNotFound, "cannot fill in, no text field, text area or password field with id or label '#{locator}' found" unless field
       field.set(options[:with])
     end
 
     def choose(locator)
-      field = fetch_xpath(XPath.radio_button(locator))
+      field = wait_for(XPath.radio_button(locator))
       raise Capybara::ElementNotFound, "cannot choose field, no radio button with id or label '#{locator}' found" unless field
       field.set(true)
     end
 
     def check(locator)
-      field = fetch_xpath(XPath.checkbox(locator))
+      field = wait_for(XPath.checkbox(locator))
       raise Capybara::ElementNotFound, "cannot check field, no checkbox with id or label '#{locator}' found" unless field
       field.set(true)
     end
 
     def uncheck(locator)
-      field = fetch_xpath(XPath.checkbox(locator))
+      field = wait_for(XPath.checkbox(locator))
       raise Capybara::ElementNotFound, "cannot uncheck field, no checkbox with id or label '#{locator}' found" unless field
       field.set(false)
     end
 
     def select(value, options={})
-      field = fetch_xpath(XPath.select(options[:from]))
+      field = wait_for(XPath.select(options[:from]))
       raise Capybara::ElementNotFound, "cannot select option, no select box with id or label '#{options[:from]}' found" unless field
       field.select(value)
     end
 
     def attach_file(locator, path)
-      field = fetch_xpath(XPath.file_field(locator))
+      field = wait_for(XPath.file_field(locator))
       raise Capybara::ElementNotFound, "cannot attach file, no file field with id or label '#{locator}' found" unless field
       field.set(path)
     end
@@ -100,7 +108,7 @@ module Capybara
     def within(kind, scope=nil)
       kind, scope = Capybara.default_selector, kind unless scope
       scope = css_to_xpath(scope) if kind == :css
-      raise Capybara::ElementNotFound, "scope '#{scope}' not found on page" unless find(scope)
+      raise Capybara::ElementNotFound, "scope '#{scope}' not found on page" unless wait_for(scope)
       scopes.push(scope)
       yield
       scopes.pop
@@ -124,29 +132,36 @@ module Capybara
     end
 
     def all(locator)
-      locator = current_scope.to_s + locator
-      driver.find(locator)
+      XPath.wrap(locator).scope(current_scope).paths.map do |path|
+        driver.find(path)
+      end.flatten
+    end
+
+    def find(locator)
+      all(locator).first
     end
     
-    def find(locator)
-      all(locator.to_s).first
+    def wait_for(locator)
+      return find(locator) unless driver.wait?
+      8.times do
+        result = find(locator)
+        return result if result
+        sleep(0.1)
+      end
+      nil
     end
 
     def find_field(locator)
-      fetch_xpath(XPath.field(locator))
+      find(XPath.field(locator))
     end
     alias_method :field_labeled, :find_field
 
     def find_link(locator)
-      fetch_xpath(XPath.link(locator))
+      find(XPath.link(locator))
     end
 
     def find_button(locator)
-      fetch_xpath(XPath.button(locator))
-    end
-
-    def fetch_xpath(xpath)
-      driver.fetch(*xpath.paths.map { |path| current_scope.to_s + path })
+      find(XPath.button(locator))
     end
 
     def wait_to_disappear(xpath)
@@ -156,10 +171,16 @@ module Capybara
       end
     end
 
-    alias_method :wait_for, :fetch_xpath
+    def evaluate_script(script)
+      begin
+        driver.evaluate_script(script)
+      rescue NoMethodError
+        raise NotSupportedByDriverError
+      end
+    end
 
   private
-  
+
     def css_to_xpath(css)
       Nokogiri::CSS.xpath_for(css).first
     end
