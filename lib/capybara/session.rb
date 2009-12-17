@@ -25,6 +25,12 @@ module Capybara
       driver.visit(path)
     end
 
+    def click(locator)
+      link = wait_for(XPath.link(locator).button(locator))
+      raise Capybara::ElementNotFound, "no link or button '#{locator}' found" unless link
+      link.click
+    end
+
     def click_link(locator)
       link = wait_for(XPath.link(locator))
       raise Capybara::ElementNotFound, "no link with title, id or text '#{locator}' found" unless link
@@ -38,9 +44,9 @@ module Capybara
     end
 
     def drag(source_locator, target_locator)
-      source = find(source_locator)
+      source = wait_for(source_locator)
       raise Capybara::ElementNotFound, "drag source '#{source_locator}' not found on page" unless source
-      target = find(target_locator)
+      target = wait_for(target_locator)
       raise Capybara::ElementNotFound, "drag target '#{target_locator}' not found on page" unless target
       source.drag_to(target)
     end
@@ -172,11 +178,7 @@ module Capybara
     end
 
     def evaluate_script(script)
-      begin
-        driver.evaluate_script(script)
-      rescue NoMethodError
-        raise NotSupportedByDriverError
-      end
+      driver.evaluate_script(script)
     end
 
   private
