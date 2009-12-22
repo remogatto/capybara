@@ -901,6 +901,30 @@ shared_examples_for "session with javascript support" do
     end
   end
 
+  describe '#has_content?' do
+    it "should wait for asynchronous load" do
+      @session.visit('/with_js')
+      @session.click_link('Click me')
+      @session.should have_content('Has been clicked')
+    end
+  end
+
+  describe '#has_xpath?' do
+    it "should wait for asynchronous load" do
+      @session.visit('/with_js')
+      @session.click_link('Click me')
+      @session.should have_xpath("//a[contains(.,'Has been clicked')]")
+    end
+  end
+
+  describe '#has_css?' do
+    it "should wait for asynchronous load" do
+      @session.visit('/with_js')
+      @session.click_link('Click me')
+      @session.should have_css("a#latecomer_link")
+    end
+  end
+
   describe '#click' do
     it "should wait for asynchronous load" do
       @session.visit('/with_js')

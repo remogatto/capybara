@@ -18,7 +18,7 @@
         $('#clickable').click(function() {
           var link = $(this);
           setTimeout(function() {
-            $(link).after('<a href="#">Has been clicked</a>');
+            $(link).after('<a id="latecomer_link" href="#">Has' + ' been ' + 'clicked</a>');
             $(link).after('<input type="submit" value="New Here">');
             $(link).after('<input type="text" id="new_field">');
           }, 500);
@@ -28,7 +28,7 @@
           var link = $(this);
           setTimeout(function() {
             $(link).remove();
-          }, 1000);
+          }, 500);
           return false;
         });
       });
