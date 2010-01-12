@@ -27,15 +27,15 @@ module LocateSpec
         @session.locate(Capybara::XPath.text_field('First Name')).should be_visible
       end
 
-      context "when ignore_hidden_elements is false" do
+      context "when locate_hidden_elements is false" do
         before do
-          Capybara.ignore_hidden_elements = false
+          Capybara.locate_hidden_elements = true
           @session.visit('/form')
           @xpath = Capybara::XPath.text_field('First Name')
         end
 
         after do
-          Capybara.ignore_hidden_elements = true
+          Capybara.locate_hidden_elements = false
         end
 
         it "should not raise an exception hitting a hidden element" do

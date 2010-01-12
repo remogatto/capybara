@@ -26,17 +26,17 @@ module ChooseSpec
 
       context "with a locator that selects a hidden node" do
         before do
-          Capybara.ignore_hidden_elements = false
+          Capybara.locate_hidden_elements = true
         end
 
         after do
-          Capybara.ignore_hidden_elements = true
+          Capybara.locate_hidden_elements = false
         end
 
         it "should raise an error" do
           running do
             @session.choose("hidden_gender_male")
-          end.should raise_error(Capybara::LocateHiddenElementError)
+          end.should raise_error(Capybara::InteractingWithHiddenElementError)
         end
       end
     end

@@ -170,7 +170,7 @@ module Capybara
     # Return element identified by locator or raise ElementNotFound (using desc).
     # If element is hidden raise LocateHiddenElementError.
     def locate(locator, fail_msg = nil)
-      node = wait_conditionally_until { Capybara.ignore_hidden_elements ? find(locator, :visible => true) : find(locator) }
+      node = wait_conditionally_until { Capybara.locate_hidden_elements ? find(locator) : find(locator, :visible => true) }
     ensure
       raise Capybara::ElementNotFound, fail_msg || "Unable to locate '#{locator}'" unless node
       return node
@@ -188,7 +188,8 @@ module Capybara
 
     def locate_if_visible(locator, fail_msg = nil)
       node = locate(locator, fail_msg)
-      node.visible? ? node : raise(Capybara::LocateHiddenElementError, "The element selected by '#{locator}' is hidden")
+      node.visible? ? node : raise(Capybara::InteractingWithHiddenElementError, 
+                                   "The element selected by '#{locator}' is hidden so you can't interact with it")
     end
     
     def wait_conditionally_until
